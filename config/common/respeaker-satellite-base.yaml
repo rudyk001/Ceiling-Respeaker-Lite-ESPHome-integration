@@ -102,6 +102,20 @@ wifi:
   on_disconnect:
     - script.execute: control_leds
 
+#Captive Portal for wifi settings through AP
+captive_portal:
+
+# Web server for OTA updates
+web_server:
+  port: 80
+
+#OTA updates options 
+ota:
+  - platform: esphome
+    id: ota_esphome
+  - platform: web_server
+    id: ota_web
+
 network:
   enable_ipv6: true
 
@@ -111,13 +125,6 @@ logger:
   logs:
     sensor: WARN  # avoids logging debug sensor updates
 #  hardware_uart: uart0  #Uncomment to see serial logs via USB connection. Comment out after debufgging - this line introduces noise on speaker...
-
-# ------------------------
-# Web server i Captive Portal
-web_server:
-  port: 80
-
-captive_portal:
 
 api:
   id: api_id
@@ -158,11 +165,6 @@ api:
 # Uncomment this, if you have problems with text-to-speech because of Home Assistant HTTPS internal URL
 # http_request:
 #   verify_ssl: false
-
-ota:
-  - platform: esphome
-    id: ota_esphome
-    password: !secret ota_password
 
 i2c:
   - id: internal_i2c
