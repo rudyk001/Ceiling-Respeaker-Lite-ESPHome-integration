@@ -163,6 +163,11 @@ psram:
   speed: 80MHz
 
 globals:
+  # Global index for our LEDs. So that switching between different animation does not lead to unwanted effects.
+  - id: global_led_animation_index
+    type: int
+    restore_value: no
+    initial_value: '0'
   - id: init_in_progress
     type: bool
     restore_value: no
@@ -554,56 +559,62 @@ light:
     internal: true
     rgb_order: GRB
     pin: GPIO1
-    num_leds: 1
+    num_leds: 12
     rmt_symbols: 192
     chipset: ws2812
     default_transition_length: 0s
     effects:
       - addressable_lambda:
           name: "Fast Pulse"
-          update_interval: 10ms
+          update_interval: 50ms
           lambda: |-
-            static float fraction = 0.0;
-            static float step = 0.05;
-            static bool increasing = true;
-
             auto values = id(led_internal)->current_values;
             Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
-            it[0].set_rgb(color.red * fraction, 
-                             color.green * fraction, 
-                             color.blue * fraction);
-            
-            fraction += (step * (increasing ? 1 : -1));
-            if (fraction > 1.0) {
-              fraction = 1.0;
-              increasing = !increasing;
-            } else if (fraction < 0.0) {
-              fraction = 0.0;
-              increasing = !increasing;
+
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
             }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
 
       - addressable_lambda:
           name: "Slow Pulse"
-          update_interval: 30ms
+          update_interval: 100ms
           lambda: |-
-            static float fraction = 0.0;
-            static float step = 0.05;
-            static bool increasing = true;
-
             auto values = id(led_internal)->current_values;
             Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
-            it[0].set_rgb(color.red * fraction, 
-                             color.green * fraction, 
-                             color.blue * fraction);
             
-            fraction += (step * (increasing ? 1 : -1));
-            if (fraction > 1.0) {
-              fraction = 1.0;
-              increasing = !increasing;
-            } else if (fraction < 0.0) {
-              fraction = 0.0;
-              increasing = !increasing;
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
             }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
   # User facing LED.
   # Exposed to be used by the user.
   - platform: partition
@@ -624,53 +635,59 @@ light:
     segments:
       - id: led_internal
         from: 0
-        to: 0
+        to: 11
     effects:
       - addressable_lambda:
           name: "Fast Pulse"
-          update_interval: 10ms
+          update_interval: 50ms
           lambda: |-
-            static float fraction = 0.0;
-            static float step = 0.05;
-            static bool increasing = true;
-
-            auto values = id(led_respeaker_onboard)->current_values;
+            auto values = id(led_internal)->current_values;
             Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
-            it[0].set_rgb(color.red * fraction, 
-                             color.green * fraction, 
-                             color.blue * fraction);
             
-            fraction += (step * (increasing ? 1 : -1));
-            if (fraction > 1.0) {
-              fraction = 1.0;
-              increasing = !increasing;
-            } else if (fraction < 0.0) {
-              fraction = 0.0;
-              increasing = !increasing;
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
             }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
 
       - addressable_lambda:
           name: "Slow Pulse"
-          update_interval: 30ms
+          update_interval: 100ms
           lambda: |-
-            static float fraction = 0.0;
-            static float step = 0.05;
-            static bool increasing = true;
-
-            auto values = id(led_respeaker_onboard)->current_values;
+            auto values = id(led_internal)->current_values;
             Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
-            it[0].set_rgb(color.red * fraction, 
-                             color.green * fraction, 
-                             color.blue * fraction);
             
-            fraction += (step * (increasing ? 1 : -1));
-            if (fraction > 1.0) {
-              fraction = 1.0;
-              increasing = !increasing;
-            } else if (fraction < 0.0) {
-              fraction = 0.0;
-              increasing = !increasing;
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
             }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
 
 sensor:
   - platform: template
