@@ -1140,6 +1140,9 @@ i2s_audio:
     i2s_mclk_pin:  
       number: GPIO9
       allow_other_uses: true
+      
+packages:
+  SoundSense: github://fixtse/ha-voice-sound-sense/sound_sense.yaml
 
 microphone:
   - platform: i2s_audio
@@ -1152,6 +1155,11 @@ microphone:
     i2s_mode: secondary
     i2s_audio_id: i2s_input
     channel: stereo
+    on_data:
+      - script.execute:
+          id: process_audio_data
+          audio_data: !lambda return x;
+    
       
 speaker:
   # Hardware speaker output
