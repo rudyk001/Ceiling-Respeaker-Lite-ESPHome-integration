@@ -27,8 +27,10 @@ substitutions:
   center_button_long_press_sound_file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/center_button_long_press.flac
 
 esphome:
+  name: ceiling-respeaker-lite
+  friendly_name: ceiling-respeaker-lite
   project: 
-    name: formatbce.Respeaker Lite Satellite
+    name: formatbce.ceiling-respeaker-lite
     version: 2025.10.0
   min_version: 2025.9.3
   on_boot:
@@ -89,6 +91,9 @@ esp32:
       CONFIG_MBEDTLS_SSL_PROTO_TLS1_3: "y"  # TLS1.3 support isn't enabled by default in IDF 5.1.5
 
 wifi:
+  ap:
+    ssid: "Respeaker_Setup"
+    password: "12345678"
   id: wifi_id
   fast_connect: ${hidden_ssid}
   on_connect:
@@ -106,6 +111,13 @@ logger:
   logs:
     sensor: WARN  # avoids logging debug sensor updates
 #  hardware_uart: uart0  #Uncomment to see serial logs via USB connection. Comment out after debufgging - this line introduces noise on speaker...
+
+# ------------------------
+# Web server i Captive Portal
+web_server:
+  port: 80
+
+captive_portal:
 
 api:
   id: api_id
