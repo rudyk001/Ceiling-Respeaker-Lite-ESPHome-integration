@@ -111,15 +111,15 @@ wifi:
 captive_portal:
 
 # Web server for OTA updates
-web_server:
-  port: 80
+#web_server:
+#  port: 80
 
 #OTA updates options 
 ota:
   - platform: esphome
     id: ota_esphome
-  - platform: web_server
-    id: ota_web
+  #- platform: web_server
+  #  id: ota_web
 
 network:
   enable_ipv6: true
