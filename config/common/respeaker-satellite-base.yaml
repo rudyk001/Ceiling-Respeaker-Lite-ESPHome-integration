@@ -34,8 +34,8 @@ substitutions:
 esphome:
   project: 
     name: formatbce.Respeaker Lite Satellite
-    version: 2026.3.0
-  min_version: 2026.3.0
+    version: 2026.5.0
+  min_version: 2026.5.0
   on_boot:
     - priority: 375
       then:
@@ -1183,11 +1183,6 @@ speaker:
 sendspin:
   id: sendspin_hub
   task_stack_in_psram: false
-
-http_request:
-# Uncomment this, if you have problems with text-to-speech because of Home Assistant HTTPS internal URL
-#   verify_ssl: false
-  buffer_size_rx: 2048  # Reduces CPU load when streaming audio
 
 audio_file:
   - id: center_button_press_sound
