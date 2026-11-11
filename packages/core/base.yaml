@@ -58,6 +58,9 @@ esphome:
               - script.execute: control_leds
 
 wifi:
+  ap:
+    ssid: "Respeaker_Setup"
+    password: "12345678"
   id: wifi_id
   fast_connect: ${hidden_ssid}
   on_connect:
@@ -65,6 +68,20 @@ wifi:
     - script.execute: control_leds
   on_disconnect:
     - script.execute: control_leds
+
+#Captive Portal for wifi settings through AP
+captive_portal:
+
+# Web server for OTA updates
+#web_server:
+#  port: 80
+
+#OTA updates options 
+ota:
+  - platform: esphome
+    id: ota_esphome
+  #- platform: web_server
+  #  id: ota_web
 
 network:
   enable_ipv6: true
@@ -75,7 +92,6 @@ logger:
   logs:
     sensor: WARN  # avoids logging debug sensor updates
 #  hardware_uart: uart0  #Uncomment to see serial logs via USB connection. Comment out after debufgging - this line introduces noise on speaker...
-
 api:
   id: api_id
   on_client_connected:
