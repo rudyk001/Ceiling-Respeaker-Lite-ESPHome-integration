@@ -1,0 +1,206 @@
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+esphome:
+  name: ceiling-respeaker-lite
+  friendly_name: ceiling-respeaker-lite
+
+#Access point
+wifi:
+  ap:
+    ssid: "Respeaker_Setup"
+    password: "12345678"
+
+#Captive Portal for wifi settings through AP
+captive_portal:
+
+#OTA updates options 
+ota:
+  - platform: esphome
+    id: ota_esphome
+
+substitutions:
+  # Floor MEASURED 2026-08-19 on unit 01: quiet room -76.1 dB mean, sd 1.11.
+  # Raw I2S like the PE but a different mic/ADC path -- it lands ~4.5 dB above
+  # the PE and ~5 dB below the Satellite1, which is why none of the three can
+  # share a value. Ceiling NOT yet measured; run Calibrate Loud Ceiling.
+  ambient_min_db: "-74.0"
+  ambient_max_db: "0"
+  dv_curve_exponent: "0.4"
+
+packages:
+  vendor:
+    url: https://github.com/formatBCE/Respeaker-Lite-ESPHome-integration
+    ref: main
+    refresh: always
+    files:
+      - config/common/respeaker-satellite-base.yaml
+
+  dynamic_volume:
+    url: https://github.com/AnotherMike-exe/Plum-Satellite-Configs
+    ref: main
+    refresh: always
+    files:
+      - path: lib/dynamic-volume.yaml
+        vars:
+          mic_id: i2s_mics
+          mic_channel: "1"
+          mic_gain_factor: "4"
+          media_player_id: external_media_player
+          wake_word_id: mww
+          ambient_min_db: ${ambient_min_db}
+          ambient_max_db: ${ambient_max_db}
+          dv_curve_exponent: ${dv_curve_exponent}
+          # The anchor is normalised 0..1 on every platform: both media player
+          # platforms remap 0..1 onto their own volume_min/volume_max internally
+          # (speaker_media_player.cpp:599, speaker_source_media_player.cpp:813),
+          # so this device's declared volume range is transparent here.
+          dv_anchor_min: "0.1"
+          dv_anchor_max: "1.0"
+          dv_anchor_default: "0.3"
+
+# Some vendor bases (Satellite1) declare components such as improv_serial that
+# hard-require `logger:`, so every profile provides one. `logger:` is a plain
+# dict key and merges cleanly, so a device file can override any of this
+# without !extend -- see docs/CALIBRATION.md for the debug settings to use
+# while measuring a unit's noise floor.
+# `initial_level` is set alongside `level` because some bases (formatBCE) ship
+# `initial_level: debug`; dict-merging only our `level: INFO` on top leaves
+# their initial_level behind and ESPHome rejects an initial level more severe
+# than the global one.
+logger:
+  level: INFO
+  initial_level: INFO
+
+globals:
+  # Global index for our LEDs. So that switching between different animation does not lead to unwanted effects.
+  - id: global_led_animation_index
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+light:
+  # Clear inherited lists before replacing them; package lists concatenate.
+  - id: !extend led_internal
+    num_leds: 12
+    effects: !remove
+  - id: !extend led_internal
+    effects:
+      - addressable_lambda:
+          name: "Fast Pulse"
+          update_interval: 50ms
+          lambda: |-
+            auto values = id(led_internal)->current_values;
+            Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
+
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
+            }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
+      - addressable_lambda:
+          name: "Slow Pulse"
+          update_interval: 100ms
+          lambda: |-
+            auto values = id(led_internal)->current_values;
+            Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
+            
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
+            }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
+      - addressable_lambda:
+          name: "Factory Reset Coming Up"
+          update_interval: 200ms
+          lambda: |-
+            static bool on = false;
+            on = !on;
+            for (int i = 0; i < it.size(); i++) {
+              it[i].set_rgb(on ? 255 : 0, 0, 0);
+            }
+
+  - id: !extend led_respeaker_onboard
+    segments: !remove
+    effects: !remove
+  - id: !extend led_respeaker_onboard
+    segments:
+      - id: led_internal
+        from: 0
+        to: 11
+    effects:
+      - addressable_lambda:
+          name: "Fast Pulse"
+          update_interval: 50ms
+          lambda: |-
+            auto values = id(led_internal)->current_values;
+            Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
+            
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
+            }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
+      - addressable_lambda:
+          name: "Slow Pulse"
+          update_interval: 100ms
+          lambda: |-
+            auto values = id(led_internal)->current_values;
+            Color color(values.get_red() * 255, values.get_green() * 255, values.get_blue() * 255);
+            
+            for (int i = 0; i < 12; i++) {
+              if (i == id(global_led_animation_index) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 11) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 10) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else if (i == (id(global_led_animation_index) + 6) % 12) {
+                it[i].set_rgb(color.red, color.green, color.blue);
+              } else if (i == (id(global_led_animation_index) + 5) % 12) {
+                it[i].set_rgb(color.red * 192, color.green * 192, color.blue * 192);
+              } else if (i == (id(global_led_animation_index) + 4) % 12) {
+                it[i].set_rgb(color.red * 128, color.green * 128, color.blue * 128);
+              } else {
+
+              }
+            }
+            id(global_led_animation_index) = (id(global_led_animation_index) + 1) % 12;
