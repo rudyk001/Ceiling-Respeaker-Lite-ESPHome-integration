@@ -1,0 +1,8 @@
+packages:
+  vendor:
+    url: https://github.com/rudyk001/Ceiling-Respeaker-Lite-ESPHome-integration
+    ref: main
+    refresh: always
+    files:
+      - config/common/respeaker-satellite-base-update.yaml
+      
